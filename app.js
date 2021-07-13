@@ -1,7 +1,7 @@
 const express = require('express');
 const app = express();
 
-app.use(express.json());
+app.use(express.json()); // Parse JSON objects in req
 
 let bearArray = [
     {id:1, name:"Grizzly Bear", type:"Scary", place:"Scandinavian Countries"},
