@@ -1,7 +1,11 @@
 const express = require('express');
+const authenticationHandler = require("./middlewares/authentication");
+const logHandler = require("./middlewares/logger");
 const app = express();
 
 app.use(express.json()); // Parse JSON objects in req
+app.use(logHandler);
+app.use(authenticationHandler);
 
 let bearArray = [
     {id:1, name:"Grizzly Bear", type:"Scary", place:"Scandinavian Countries"},
@@ -16,6 +20,7 @@ app.get("/", (req,res) => {
 // GET ALL 
 app.get("/api/bears", (req, res) => {
     res.send(bearArray);
+    console.log("GET ALL Method is called.")
 });
 
 // GET With Params
