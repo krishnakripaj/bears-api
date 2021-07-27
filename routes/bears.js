@@ -1,68 +1,67 @@
-const express = require('express');
+const express = require("express");
+const Bear = require("../models/bear");
 const router = express.Router();
 
-let bearArray = [
-    {id:1, name:"Grizzly Bear", type:"Scary", place:"Scandinavian Countries"},
-    {id:2, name:"Polar Bear", type:"Cute", place:"Polar Regions"},
-    {id:3, name:"Sloth Bear", type:"Lazy", place:"All over"}
-];
-
-// GET ALL 
-router.get("/", (req, res) => {
-    res.send(bearArray);
-    console.log("GET ALL Method is called.")
+// GET ALL
+router.get("/", async (req, res) => {
+  try {
+    let bears = await Bear.find().sort({ name: "desc" });
+    res.send(bears);
+  } catch (ex) {
+    return res.status(500).send("Error", ex.message);
+  }
 });
 
-
 // GET With Params
-router.get("/:bearId", (req, res) => {
-    let bearId = req.params.bearId;
-    let bear = bearArray.find(b=>b.id == bearId);
-    if (!bear){
-        return res.status(404).send("Given ID does not exist");
-    }
-    res.send(bear);
+router.get("/:bearId", async (req, res) => {
+  let bearId = req.params.bearId;
+  
+  let bear = await Bear.findById(bearId);  
+
+  if (!bear) {
+    return res.status(404).send("Given ID does not exist");
+  }
+  res.send(bear);
 });
 
 // POST
-router.post("/", (req, res) => {
+router.post("/", async (req, res) => {
+  if (!req.body.name) {
+    return res.status(400).send("Not all mandatory values are sent");
+  }
 
-    if (!req.body.name) {
-        return res.status(400).send("Not all mandatory values are sent");
-    }
+  let bear = new Bear({
+    name: req.body.name,
+    type: req.body.type,
+    movies: req.body.movies,
+    likeCount: req.body.likeCount,
+    imgUrl: req.body.imgUrl,
+    isScary: req.body.isScary,
+  });
 
-    let newBearObj = {
-        id: bearArray.length + 1,
-        name: req.body.name,
-        type: req.body.type,
-        place: req.body.place 
-    }
-    bearArray.push(newBearObj);
-    res.send(newBearObj);
+  bear = await bear.save();
+  res.send(bear);
 });
 
 // PUT
-router.put("/:bearId", (req, res) => {
-    let bear = bearArray.find(b=>b.id == req.params.bearId);
-    if (!bear) {
-        return res.status(404).send("The given ID does not exist");
-    }
+router.put("/:bearId", async (req, res) => {
+  let bear = await Bear.findById(req.params.bearId);
+  if (!bear) {
+    return res.status(404).send("The given ID does not exist");
+  }
 
-    bear.name = req.body.name;
-    res.send(bear);
+  bear.set({ likeCount: req.body.likeCount});
+  bear = await bear.save();
+  res.send(bear);
 });
 
-// DELETE 
-router.delete('/:bearId', (req, res) => {
-    let bear = bearArray.find(b=>b.id == req.params.bearId);
-    if (!bear) {
+// DELETE
+router.delete("/:bearId", async (req, res) => {
+  let bear = await Bear.findOneAndDelete({_id: req.params.bearId});
+    if (!bear){
         return res.status(404).send("The given ID does not exist");
     }
-
-    let index = bearArray.indexOf(bear);
-    bearArray.splice(index, 1);
-
-    res.send(bear);
+  res.send(bear);
 });
 
 module.exports = router;
