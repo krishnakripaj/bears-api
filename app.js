@@ -19,10 +19,11 @@ app.use('/api/auth', auth);
 app.use('/api/bears', bears);
 
 mongoose
-    .connect("mongodb://localhost/beardb", {useNewUrlParser: true, useUnifiedTopology:true})
+    .connect("mongodb+srv://admin:admin@cluster0.xrudi.mongodb.net/bearsdb?retryWrites=true&w=majority", {useNewUrlParser: true, useUnifiedTopology:true})
     .then(()=>console.log("Connected to db successfully ...."))
     .catch((err)=> console.log("Error has occured while connecting to db:", err));
 
-app.listen(5000, () => {
-    console.log("Listening on Port 5000")
+const PORT = process.env.PORT;    
+app.listen(PORT, () => {
+    console.log("Listening on Port" + PORT);
 });
